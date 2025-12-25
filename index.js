@@ -1,6 +1,6 @@
-import express from "express";
-import cors from "cors";
-import { ethers } from "ethers";
+const express = require("express");
+const cors = require("cors");
+const { ethers } = require("ethers");
 
 const app = express();
 app.use(cors());
@@ -8,14 +8,14 @@ app.use(express.json());
 
 // تنظیمات
 const RPC = "https://mainnet.base.org";
-const PRIVATE_KEY = process.env.PRIVATE_KEY; // حتماً تنظیم شود
+const PRIVATE_KEY = process.env.PRIVATE_KEY; // تنظیم در Vercel یا محیط امن
 const TOKEN_ADDRESS = "0xfCa3Ec03F9Ea17962f6981833b54C32C53E0Bffe";
 const ABI = ["function transfer(address to, uint amount) returns (bool)"];
 
 const provider = new ethers.JsonRpcProvider(RPC);
 let wallet, token;
 
-if(PRIVATE_KEY){
+if (PRIVATE_KEY) {
   wallet = new ethers.Wallet(PRIVATE_KEY, provider);
   token = new ethers.Contract(TOKEN_ADDRESS, ABI, wallet);
 } else {
@@ -41,11 +41,10 @@ app.post("/play", async (req, res) => {
     const result = Math.random() < 0.5 ? "shir" : "khat";
 
     if (guess === result) {
-      // انتقال توکن فقط اگر PRIVATE_KEY موجود باشد
-      if(wallet && token){
-        try{
+      if (wallet && token) {
+        try {
           await token.transfer(userWallet, ethers.parseUnits("10", 18));
-        } catch(e){
+        } catch (e) {
           console.error("خطا در انتقال توکن:", e);
         }
       }
